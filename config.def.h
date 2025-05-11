@@ -32,6 +32,18 @@ static char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 /* logging */
 static int log_level = WLR_ERROR;
 
+/* Autostart */
+static const char *const autostart[] = {
+    "swaybg", "-i", "/home/rolly/Downloads/lake.jpg", "-m", "fill", NULL,
+    "sh", "-c",
+    "swayidle -w \
+  timeout 120 'wlr-randr --output eDP-1 --off' resume 'wlr-randr --output eDP-1 --on' \
+  timeout 130 'swaylock --image /home/rolly/Downloads/lake.jpg &' resume 'wlr-randr --output eDP-1 --on' \
+  timeout 300 'systemctl suspend' \
+  before-sleep 'swaylock --image /home/rolly/Downloads/lake.jpg'", NULL,
+    NULL
+};
+
 /* NOTE: ALWAYS keep a rule declared even if you don't use rules (e.g leave at least one example) */
 static const Rule rules[] = {
 	/* app_id             title       tags mask     isfloating   monitor */	
@@ -120,6 +132,8 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 /* If you want to use the windows key for MODKEY, use WLR_MODIFIER_LOGO */
 #define MODKEY WLR_MODIFIER_ALT
 
+#define MODKEY2 WLR_MODIFIER_LOGO
+
 #define TAGKEYS(KEY,SKEY,TAG) \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_CTRL,  KEY,            toggleview,      {.ui = 1 << TAG} }, \
@@ -134,7 +148,7 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 
 
 /* commands */
-static const char *termcmd[] = { "kitty", NULL };
+static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
 static const char *librewolfcmd[] = { "librewolf", NULL};
 
@@ -153,6 +167,7 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
 	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = librewolfcmd} },
+	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
     	{ 0, XKB_KEY_XF86AudioMute,        spawn, SHCMD("amixer set Master toggle") },
