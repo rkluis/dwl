@@ -34,6 +34,9 @@ static int log_level = WLR_ERROR;
 
 /* Autostart */
 static const char *const autostart[] = {
+    "sh", "-c",
+    "swaylock --image /home/rolly/Downloads/lake.jpg &", NULL,
+	
     "swaybg", "-i", "/home/rolly/Downloads/lake.jpg", "-m", "fill", NULL,
     "sh", "-c",
     "swayidle -w \
@@ -150,7 +153,8 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 /* commands */
 static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
-static const char *librewolfcmd[] = { "librewolf", NULL};
+static const char *librewolfcmd[] = { "qutebrowser", NULL};
+
 
 static const Key keys[] = {
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
@@ -167,6 +171,7 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
 	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = librewolfcmd} },
+	{ MODKEY2,		     XKB_KEY_e,		 spawn,		 SHCMD("foot mc") },
 	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
