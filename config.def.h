@@ -50,8 +50,10 @@ static const char *const autostart[] = {
 
 /* NOTE: ALWAYS keep a rule declared even if you don't use rules (e.g leave at least one example) */
 static const Rule rules[] = {
-	/* app_id             title       tags mask     isfloating   monitor */	
-	{ "librewolf",  NULL,       1 << 0,       0,           -1 }, /* Start on ONLY tag "2" */
+	/* app_id        title       tags mask     switchtotag  isfloating  monitor */
+	{ "foot",        NULL,       1 << 0,       1,            0,          -1 }, /* Tag 1 */
+	{ "qutebrowser", NULL,       1 << 1,       1,            0,          -1 }, /* Tag 2 */
+	{ "librewolf",   NULL,       1 << 2,       1,            0,          -1 }, /* Tag 3 */
 };
 
 
@@ -156,7 +158,8 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 /* commands */
 static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
-static const char *librewolfcmd[] = { "qutebrowser", NULL};
+static const char *librewolfcmd[] = { "librewolf", NULL};
+static const char *qutebrowsercmd[] = { "qutebrowser", NULL};
 
 
 static const Key keys[] = {
@@ -173,7 +176,8 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_l,          setmfact,       {.f = +0.05f} },
 	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
 	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
-	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = librewolfcmd} },
+	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = qutebrowsercmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_w,		 spawn,		 {.v = librewolfcmd} },
 	{ MODKEY2,		     XKB_KEY_e,		 spawn,		 SHCMD("foot mc") },
 	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
