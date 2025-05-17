@@ -177,7 +177,7 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
 	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = qutebrowsercmd} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_w,		 spawn,		 {.v = librewolfcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
 	{ MODKEY2,		     XKB_KEY_e,		 spawn,		 SHCMD("foot mc") },
 	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
