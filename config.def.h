@@ -37,9 +37,13 @@ static int log_level = WLR_ERROR;
 static const char *const autostart[] = {
     "sh", "-c",
     "swaylock --image /home/rolly/Downloads/lake.jpg &", NULL,
-	
+    "sh", "-c",
+    "sudo systemctl start iwd &", NULL,
+
     "swaybg", "-i", "/home/rolly/Downloads/lake.jpg", "-m", "fill", NULL,
     "sh", "-c",
+
+
     "swayidle -w \
   timeout 120 'wlr-randr --output eDP-1 --off' resume 'wlr-randr --output eDP-1 --on' \
   timeout 130 'swaylock --image /home/rolly/Downloads/lake.jpg &' resume 'wlr-randr --output eDP-1 --on' \
