@@ -164,7 +164,7 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
 static const char *librewolfcmd[] = { "librewolf", NULL};
-static const char *qutebrowsercmd[] = { "qutebrowser", NULL};
+static const char *qutebrowsercmd[] = { "qutebrowser", "-r", "default", NULL};
 static const char *moonlightcmd[] = { "moonlight", "stream", "rollypc", "desktop", NULL};
 
 
@@ -185,6 +185,8 @@ static const Key keys[] = {
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = qutebrowsercmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_M,		 spawn,		 {.v = moonlightcmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
 	{ MODKEY2,		     XKB_KEY_e,		 spawn,		 SHCMD("foot mc") },
 	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
