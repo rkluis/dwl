@@ -1,4 +1,4 @@
-/* Taken from https://github.com/djpohly/dwl/issues/466 */
+/* Takken from https://github.com/djpohly/dwl/issues/466 */
 enum { SchemeNorm, SchemeSel, SchemeUrg }; /* color schemes */
 enum { ClkTagBar, ClkLtSymbol, ClkStatus, ClkTitle, ClkClient, ClkRoot }; /* clicks */
 #define TAGCOUNT (9)
@@ -9,7 +9,7 @@ enum { ClkTagBar, ClkLtSymbol, ClkStatus, ClkTitle, ClkClient, ClkRoot }; /* cli
                         (hex & 0xFF) / 255.0f }
 
 
-/* appearance */
+/* appeparance */
 static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
 static const int follow                    = 1;  /* 1 means follow windows when sent to another tag */
@@ -37,9 +37,6 @@ static int log_level = WLR_ERROR;
 static const char *const autostart[] = {
     "sh", "-c",
     "swaylock --image /home/rolly/Downloads/lake.jpg &", NULL,
-    "sh", "-c",
-    "sudo systemctl start iwd &", NULL,
-
     "swaybg", "-i", "/home/rolly/Downloads/lake.jpg", "-m", "fill", NULL,
     "sh", "-c",
 
@@ -143,9 +140,7 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 static const int cursor_timeout = 5;
 
 /* If you want to use the windows key for MODKEY, use WLR_MODIFIER_LOGO */
-#define MODKEY WLR_MODIFIER_ALT
-
-#define MODKEY2 WLR_MODIFIER_LOGO
+#define MODKEY WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,SKEY,TAG) \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
@@ -187,8 +182,9 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
-	{ MODKEY2,		     XKB_KEY_e,		 spawn,		 SHCMD("foot mc") },
-	{ MODKEY2,		     XKB_KEY_l,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
+	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
+	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
     	{ 0, XKB_KEY_XF86AudioMute, spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
