@@ -618,3 +618,131 @@ chmod 644 /usr/local/share/wayland-sessions/dwl.desktop
   Checking if /home/rolly/dwl/config.def.h modified in last 2s...
 [watcher] False trigger skipped at Fri Sep 26 12:05:08 PM CEST 2025
   (File not changed within threshold)
+[trigger] at Mon Sep 29 01:46:34 AM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[trigger] Passed recent-modified check
+[trigger] Removing config.h
+[trigger] Running make clean
+rm -f dwl *.o *-protocol.h
+[trigger] Running make
+cp config.def.h config.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/staging/cursor-shape/cursor-shape-v1.xml cursor-shape-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml pointer-constraints-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	protocols/wlr-layer-shell-unstable-v1.xml wlr-layer-shell-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` server-header \
+	protocols/wlr-output-power-management-unstable-v1.xml wlr-output-power-management-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` server-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/stable/xdg-shell/xdg-shell.xml xdg-shell-protocol.h
+cc  `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1 -o dwl.o -c dwl.c
+In file included from dwl.c:74:
+drwl.h: In function ‘drwl_init’:
+drwl.h:84:9: warning: ‘fcft_set_scaling_filter’ is deprecated [-Wdeprecated-declarations]
+   84 |         fcft_set_scaling_filter(FCFT_SCALING_FILTER_LANCZOS3);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+In file included from drwl.h:33:
+/usr/include/fcft/fcft.h:190:6: note: declared here
+  190 | bool fcft_set_scaling_filter(enum fcft_scaling_filter filter) FCFT_DEPRECATED;
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/wayland-server-core.h:32,
+                 from dwl.c:15:
+dwl.c: In function ‘cleanupmon’:
+dwl.c:946:61: error: ‘Monitor’ has no member named ‘dwl_ipc_outputs’
+  946 |         wl_list_for_each_safe(ipc_output, ipc_output_tmp, &m->dwl_ipc_outputs, link)
+      |                                                             ^~
+dwl.c:946:61: error: ‘Monitor’ has no member named ‘dwl_ipc_outputs’
+  946 |         wl_list_for_each_safe(ipc_output, ipc_output_tmp, &m->dwl_ipc_outputs, link)
+      |                                                             ^~
+dwl.c: In function ‘printstatus’:
+dwl.c:2438:17: error: implicit declaration of function ‘dwl_ipc_output_printstatus’ [-Wimplicit-function-declaration]
+ 2438 |                 dwl_ipc_output_printstatus(m);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+make: *** [Makefile:86: dwl.o] Error 1
+[error] make failed
+[trigger] at Mon Sep 29 10:48:05 AM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[watcher] False trigger skipped at Mon Sep 29 10:48:05 AM CEST 2025
+  (File not changed within threshold)
+[trigger] at Mon Sep 29 05:47:33 PM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[watcher] False trigger skipped at Mon Sep 29 05:47:33 PM CEST 2025
+  (File not changed within threshold)
+[trigger] at Mon Sep 29 07:18:03 PM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[watcher] False trigger skipped at Mon Sep 29 07:18:03 PM CEST 2025
+  (File not changed within threshold)
+[trigger] at Fri Oct  3 02:36:40 AM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[watcher] False trigger skipped at Fri Oct  3 02:36:40 AM CEST 2025
+  (File not changed within threshold)
+[trigger] at Fri Oct  3 02:54:38 AM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[trigger] Passed recent-modified check
+[trigger] Removing config.h
+[trigger] Running make clean
+rm -f dwl *.o *-protocol.h
+[trigger] Running make
+cp config.def.h config.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/staging/cursor-shape/cursor-shape-v1.xml cursor-shape-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml pointer-constraints-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` enum-header \
+	protocols/wlr-layer-shell-unstable-v1.xml wlr-layer-shell-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` server-header \
+	protocols/wlr-output-power-management-unstable-v1.xml wlr-output-power-management-unstable-v1-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` server-header \
+	`pkg-config --variable=pkgdatadir wayland-protocols`/stable/xdg-shell/xdg-shell.xml xdg-shell-protocol.h
+`pkg-config --variable=wayland_scanner wayland-scanner` server-header \
+	protocols/dwl-ipc-unstable-v2.xml dwl-ipc-unstable-v2-protocol.h
+cc  `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1 -o dwl.o -c dwl.c
+In file included from dwl.c:75:
+drwl.h: In function ‘drwl_init’:
+drwl.h:84:9: warning: ‘fcft_set_scaling_filter’ is deprecated [-Wdeprecated-declarations]
+   84 |         fcft_set_scaling_filter(FCFT_SCALING_FILTER_LANCZOS3);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+In file included from drwl.h:33:
+/usr/include/fcft/fcft.h:190:6: note: declared here
+  190 | bool fcft_set_scaling_filter(enum fcft_scaling_filter filter) FCFT_DEPRECATED;
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+cc  `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1 -o util.o -c util.c
+cc  `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1 -o dwl-ipc-unstable-v2-protocol.o -c dwl-ipc-unstable-v2-protocol.c
+cc dwl.o util.o dwl-ipc-unstable-v2-protocol.o `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1  `pkg-config --libs wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --libs wlroots-0.19` -lwayland-server -lm  -o dwl
+[trigger] Running make install
+cp config.def.h config.h
+cc  `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1 -o dwl.o -c dwl.c
+In file included from dwl.c:75:
+drwl.h: In function ‘drwl_init’:
+drwl.h:84:9: warning: ‘fcft_set_scaling_filter’ is deprecated [-Wdeprecated-declarations]
+   84 |         fcft_set_scaling_filter(FCFT_SCALING_FILTER_LANCZOS3);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+In file included from drwl.h:33:
+/usr/include/fcft/fcft.h:190:6: note: declared here
+  190 | bool fcft_set_scaling_filter(enum fcft_scaling_filter filter) FCFT_DEPRECATED;
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+cc dwl.o util.o dwl-ipc-unstable-v2-protocol.o `pkg-config --cflags wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --cflags wlroots-0.19` -I. -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L  -DVERSION=\"`git describe --tags --dirty 2>/dev/null || echo 0.8-dev`\"  -g -Wpedantic -Wall -Wextra -Wdeclaration-after-statement  -Wno-unused-parameter -Wshadow -Wunused-macros -Werror=strict-prototypes  -Werror=implicit -Werror=return-type -Werror=incompatible-pointer-types  -Wfloat-conversion -O1  `pkg-config --libs wlroots-0.19 wayland-server xkbcommon libinput pixman-1 fcft ` `pkg-config --libs wlroots-0.19` -lwayland-server -lm  -o dwl
+mkdir -p /usr/local/bin
+rm -f /usr/local/bin/dwl
+cp -f dwl /usr/local/bin
+chmod 755 /usr/local/bin/dwl
+mkdir -p /usr/local/share/man/man1
+cp -f dwl.1 /usr/local/share/man/man1
+chmod 644 /usr/local/share/man/man1/dwl.1
+mkdir -p /usr/local/share/wayland-sessions
+cp -f dwl.desktop /usr/local/share/wayland-sessions/dwl.desktop
+chmod 644 /usr/local/share/wayland-sessions/dwl.desktop
+[trigger] restarting dwl
