@@ -159,7 +159,7 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
 static const char *librewolfcmd[] = { "librewolf", NULL};
-static const char *qutebrowsercmd[] = { "/home/rolly/.local/bin/qute", NULL};
+static const char *qutebrowsercmd[] = { "qute", NULL};
 static const char *moonlightcmd[] = { "moonlight", "stream", "rollypc", "desktop", NULL};
 
 
