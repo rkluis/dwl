@@ -746,3 +746,9 @@ mkdir -p /usr/local/share/wayland-sessions
 cp -f dwl.desktop /usr/local/share/wayland-sessions/dwl.desktop
 chmod 644 /usr/local/share/wayland-sessions/dwl.desktop
 [trigger] restarting dwl
+[trigger] at Tue Oct  7 06:07:28 PM CEST 2025
+  PWD: /home/rolly/dwl
+  Args: 
+  Checking if /home/rolly/dwl/config.def.h modified in last 2s...
+[watcher] False trigger skipped at Tue Oct  7 06:07:28 PM CEST 2025
+  (File not changed within threshold)
