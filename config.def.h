@@ -143,6 +143,7 @@ static const int cursor_timeout = 5;
 #define MODKEY WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,SKEY,TAG) \
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY,   view,            {.ui = 1 << TAG} }, \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_CTRL,  KEY,            toggleview,      {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_SHIFT, SKEY,           tag,             {.ui = 1 << TAG} }, \
@@ -214,6 +215,44 @@ static const Key keys[] = {
 	TAGKEYS(          XKB_KEY_8, XKB_KEY_asterisk,                   7),
 	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                  8),
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
+
+	/* Bindings for WSL2 */
+	/* modifier                  key                 function        argument */
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_p,          spawn,          {.v = menucmd} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_Return,     spawn,          {.v = termcmd} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_b,          togglebar,      {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_j,          focusstack,     {.i = +1} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_k,          focusstack,     {.i = -1} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_i,          incnmaster,     {.i = +1} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_d,          incnmaster,     {.i = -1} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_h,          setmfact,       {.f = -0.05f} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_l,          setmfact,       {.f = +0.05f} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_Return,     zoom,           {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_Tab,        view,           {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,		     XKB_KEY_w,		 spawn,		 {.v = qutebrowsercmd} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_M,		 spawn,		 {.v = moonlightcmd} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
+
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_space,      setlayout,      {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_e,         togglefullscreen, {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_0,          view,           {.ui = ~0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_period,     focusmon,       {.i = WLR_DIRECTION_RIGHT} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_less,       tagmon,         {.i = WLR_DIRECTION_LEFT} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_greater,    tagmon,         {.i = WLR_DIRECTION_RIGHT} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
+
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
