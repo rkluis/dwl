@@ -1,4 +1,4 @@
-/* Takken from https://github.com/djpohly/dwl/issues/466 */
+/* Taken from https://github.com/djpohly/dwl/issues/466 */
 enum { SchemeNorm, SchemeSel, SchemeUrg }; /* color schemes */
 enum { ClkTagBar, ClkLtSymbol, ClkStatus, ClkTitle, ClkClient, ClkRoot }; /* clicks */
 #define TAGCOUNT (9)
@@ -36,16 +36,16 @@ static int log_level = WLR_ERROR;
 /* Autostart */
 static const char *const autostart[] = {
     "sh", "-c",
-    "swaylock --image /home/rolly/Downloads/lake.jpg &", NULL,
-    "swaybg", "-i", "/home/rolly/Downloads/lake.jpg", "-m", "fill", NULL,
+    "swaylock --image /home/rolly/wallpapers/hands.jpg &", NULL,
+    "swaybg", "-i", "/home/rolly/wallpapers/hands.jpg", "-m", "fill", NULL,
     "sh", "-c",
 
 
     "swayidle -w \
   timeout 120 'wlr-randr --output eDP-1 --off' resume 'wlr-randr --output eDP-1 --on' \
-  timeout 130 'swaylock --image /home/rolly/Downloads/lake.jpg &' resume 'wlr-randr --output eDP-1 --on' \
+  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' resume 'wlr-randr --output eDP-1 --on' \
   timeout 300 'systemctl suspend' \
-  before-sleep 'swaylock --image /home/rolly/Downloads/lake.jpg'", NULL,
+  before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
     NULL
 };
 
@@ -185,7 +185,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
 	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
-	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
+	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
     	{ 0, XKB_KEY_XF86AudioMute, spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
@@ -236,7 +236,7 @@ static const Key keys[] = {
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/Downloads/lake.jpg") },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
 
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
