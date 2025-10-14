@@ -1,6 +1,10 @@
+config.h
 dwl
+rebuild.log
 *.o
 *-protocol.c
 *-protocol.h
 .ccls-cache
-config.h
+.gitignore
+.git/*
+.gitea/*

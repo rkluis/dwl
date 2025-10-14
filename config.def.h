@@ -184,7 +184,6 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
-	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
 	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
@@ -235,7 +234,6 @@ static const Key keys[] = {
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_E,		 spawn,		 SHCMD("foot mc") },
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
 
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
