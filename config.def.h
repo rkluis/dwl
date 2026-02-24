@@ -42,8 +42,8 @@ static const char *const autostart[] = {
 
 
     "swayidle -w \
-  timeout 120 'wlr-randr --output eDP-1 --off' resume 'wlr-randr --output eDP-1 --on' \
-  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' resume 'wlr-randr --output eDP-1 --on' \
+  timeout 120 'wlr-randr --output DP-2 --off' resume 'wlr-randr --output DP-2 --on' \
+  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' resume 'wlr-randr --output DP-2 --on' \
   timeout 300 'systemctl suspend' \
   before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
     NULL
@@ -74,13 +74,20 @@ static const Layout layouts[] = {
 */
 /* NOTE: ALWAYS add a fallback rule, even if you are completely sure it won't be used */
 static const MonitorRule monrules[] = {
-	/* name       mfact  nmaster scale layout       rotate/reflect                x    y */
-	/* example of a HiDPI laptop monitor:
-	{ "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	*/
-	/* defaults */
-	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+
+    /* Left 4K monitor (Samsung U32R59x), normal landscape */
+    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0 },
+
+    /* Middle 4K monitor (ASUS XG32UCWMG), normal landscape */
+    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 3840, 0 },
+
+    /* Right portrait monitor (DELL P2419H), upside-down portrait */
+    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 7680, 0 },
+
+    /* Fallback rule for any other monitor */
+    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1 },
 };
+
 
 /* keyboard */
 static const struct xkb_rule_names xkb_rules = {
@@ -143,7 +150,6 @@ static const int cursor_timeout = 5;
 #define MODKEY WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,SKEY,TAG) \
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY,   view,            {.ui = 1 << TAG} }, \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_CTRL,  KEY,            toggleview,      {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_SHIFT, SKEY,           tag,             {.ui = 1 << TAG} }, \
@@ -158,6 +164,7 @@ static const char *brightdown[] = { "brightnessctl", "set", "10%-", NULL };
 
 /* commands */
 static const char *termcmd[] = { "foot", NULL };
+static const char *screenshotcmd[] = { "~/scripts/screenshot.sh", "region", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
 static const char *librewolfcmd[] = { "librewolf", NULL};
 static const char *qutebrowsercmd[] = { "qute", NULL};
@@ -182,7 +189,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_M,		 spawn,		 {.v = moonlightcmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
 	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
@@ -214,52 +221,18 @@ static const Key keys[] = {
 	TAGKEYS(          XKB_KEY_8, XKB_KEY_asterisk,                   7),
 	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                  8),
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
-
-	/* Bindings for WSL2 */
-	/* modifier                  key                 function        argument */
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_p,          spawn,          {.v = menucmd} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_Return,     spawn,          {.v = termcmd} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_b,          togglebar,      {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_j,          focusstack,     {.i = +1} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_k,          focusstack,     {.i = -1} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_i,          incnmaster,     {.i = +1} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_d,          incnmaster,     {.i = -1} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_h,          setmfact,       {.f = -0.05f} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_l,          setmfact,       {.f = +0.05f} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_Return,     zoom,           {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_Tab,        view,           {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,		     XKB_KEY_w,		 spawn,		 {.v = qutebrowsercmd} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_M,		 spawn,		 {.v = moonlightcmd} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_W,		 spawn,		 {.v = librewolfcmd} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") }, 
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
-
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_space,      setlayout,      {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_e,         togglefullscreen, {0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_0,          view,           {.ui = ~0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,                    XKB_KEY_period,     focusmon,       {.i = WLR_DIRECTION_RIGHT} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_less,       tagmon,         {.i = WLR_DIRECTION_LEFT} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_greater,    tagmon,         {.i = WLR_DIRECTION_RIGHT} },
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
-
-
+	
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
 	/* Ctrl-Alt-Fx is used to switch to another VT, if you don't know what a VT is
 	 * do not remove them.
 	 */
+
+
 #define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
 	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),
 	CHVT(7), CHVT(8), CHVT(9), CHVT(10), CHVT(11), CHVT(12),
+
 };
 
 static const Button buttons[] = {

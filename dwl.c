@@ -1282,6 +1282,8 @@ createmon(struct wl_listener *listener, void *data)
 	const MonitorRule *r;
 	size_t i;
 	struct wlr_output_state state;
+	struct wlr_output_mode *best_mode = NULL;
+	struct wlr_output_mode *mode;
 	Monitor *m;
 
 	if (!wlr_output_init_render(wlr_output, alloc, drw))
@@ -1321,7 +1323,20 @@ createmon(struct wl_listener *listener, void *data)
 	 * monitor supports only a specific set of modes. We just pick the
 	 * monitor's preferred mode; a more sophisticated compositor would let
 	 * the user configure it. */
-	wlr_output_state_set_mode(&state, wlr_output_preferred_mode(wlr_output));
+	//wlr_output_state_set_mode(&state, wlr_output_preferred_mode(wlr_output));
+
+	wl_list_for_each(mode, &wlr_output->modes, link) {
+		if (!best_mode ||
+			mode->width * mode->height > best_mode->width * best_mode->height ||
+			(mode->width * mode->height == best_mode->width * best_mode->height &&
+			 mode->refresh > best_mode->refresh)) {
+			best_mode = mode;
+		}
+	}
+
+	if (best_mode)
+	    wlr_output_state_set_mode(&state, best_mode);
+
 
 	/* Set up event listeners */
 	LISTEN(&wlr_output->events.frame, &m->frame, rendermon);
