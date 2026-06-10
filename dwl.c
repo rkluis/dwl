@@ -362,6 +362,7 @@ static void keypress(struct wl_listener *listener, void *data);
 static void keypressmod(struct wl_listener *listener, void *data);
 static int keyrepeat(void *data);
 static void killclient(const Arg *arg);
+static void lastcursorsurfacedestroy(struct wl_listener *listener, void *data);
 static void locksession(struct wl_listener *listener, void *data);
 static void mapnotify(struct wl_listener *listener, void *data);
 static void maximizenotify(struct wl_listener *listener, void *data);
@@ -467,6 +468,7 @@ static struct {
 	struct wlr_surface *surface;
 	int hotspot_x;
 	int hotspot_y;
+	struct wl_listener surface_destroy; /* clears surface when the client destroys it */
 } last_cursor;
 
 static struct wlr_scene_rect *root_bg;
@@ -2163,9 +2165,11 @@ handlecursoractivity(void)
 	if (last_cursor.shape)
 		wlr_cursor_set_xcursor(cursor, cursor_mgr,
 				wlr_cursor_shape_v1_name(last_cursor.shape));
-	else
+	else if (last_cursor.surface)
 		wlr_cursor_set_surface(cursor, last_cursor.surface,
 				last_cursor.hotspot_x, last_cursor.hotspot_y);
+	else
+		wlr_cursor_set_xcursor(cursor, cursor_mgr, "default");
 }
 
 int
@@ -2331,6 +2335,16 @@ killclient(const Arg *arg)
 	Client *sel = focustop(selmon);
 	if (sel)
 		client_send_close(sel);
+}
+
+void
+lastcursorsurfacedestroy(struct wl_listener *listener, void *data)
+{
+	/* the client destroyed the surface we cached for cursor unhide;
+	 * drop the dangling pointer (see handlecursoractivity()) */
+	last_cursor.surface = NULL;
+	wl_list_remove(&last_cursor.surface_destroy.link);
+	wl_list_init(&last_cursor.surface_destroy.link);
 }
 
 void
@@ -2898,7 +2912,12 @@ setcursor(struct wl_listener *listener, void *data)
 	 * do so as the cursor moves between outputs. */
 	if (event->seat_client == seat->pointer_state.focused_client) {
 		last_cursor.shape = 0;
+		wl_list_remove(&last_cursor.surface_destroy.link);
+		wl_list_init(&last_cursor.surface_destroy.link);
 		last_cursor.surface = event->surface;
+		if (event->surface)
+			wl_signal_add(&event->surface->events.destroy,
+					&last_cursor.surface_destroy);
 		last_cursor.hotspot_x = event->hotspot_x;
 		last_cursor.hotspot_y = event->hotspot_y;
 
@@ -2919,6 +2938,8 @@ setcursorshape(struct wl_listener *listener, void *data)
 	 * use the provided cursor shape. */
 	if (event->seat_client == seat->pointer_state.focused_client) {
 		last_cursor.shape = event->shape;
+		wl_list_remove(&last_cursor.surface_destroy.link);
+		wl_list_init(&last_cursor.surface_destroy.link);
 		last_cursor.surface = NULL;
 
 		if (!cursor_hidden)
@@ -3256,6 +3277,8 @@ setup(void)
 
 	hide_source = wl_event_loop_add_timer(wl_display_get_event_loop(dpy),
 			hidecursor, cursor);
+	last_cursor.surface_destroy.notify = lastcursorsurfacedestroy;
+	wl_list_init(&last_cursor.surface_destroy.link);
 
 	/*
 	 * Configures a seat, which is a single "seat" at which a user sits and
