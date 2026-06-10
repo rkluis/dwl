@@ -21,6 +21,7 @@ all: dwl
 dwl: dwl.o util.o dwl-ipc-unstable-v2-protocol.o
 	$(CC) dwl.o util.o dwl-ipc-unstable-v2-protocol.o $(DWLCFLAGS) $(LDFLAGS) $(LDLIBS) -o $@
 dwl.o: dwl.c client.h config.h config.mk cursor-shape-v1-protocol.h \
+	ext-image-copy-capture-v1-protocol.h \
 	pointer-constraints-unstable-v1-protocol.h wlr-layer-shell-unstable-v1-protocol.h \
 	wlr-output-power-management-unstable-v1-protocol.h xdg-shell-protocol.h \
 	dwl-ipc-unstable-v2-protocol.h
@@ -35,6 +36,9 @@ WAYLAND_PROTOCOLS = `$(PKG_CONFIG) --variable=pkgdatadir wayland-protocols`
 cursor-shape-v1-protocol.h:
 	$(WAYLAND_SCANNER) enum-header \
 		$(WAYLAND_PROTOCOLS)/staging/cursor-shape/cursor-shape-v1.xml $@
+ext-image-copy-capture-v1-protocol.h:
+	$(WAYLAND_SCANNER) enum-header \
+		$(WAYLAND_PROTOCOLS)/staging/ext-image-copy-capture/ext-image-copy-capture-v1.xml $@
 pointer-constraints-unstable-v1-protocol.h:
 	$(WAYLAND_SCANNER) enum-header \
 		$(WAYLAND_PROTOCOLS)/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml $@

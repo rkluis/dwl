@@ -39,11 +39,15 @@ static const char *const autostart[] = {
     "swaylock --image /home/rolly/wallpapers/hands.jpg &", NULL,
     "swaybg", "-i", "/home/rolly/wallpapers/hands.jpg", "-m", "fill", NULL,
     "sh", "-c",
+    "sleep 1 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0 --output DP-2 --pos -3840,0 --output HDMI-A-1 --pos 3840,0", NULL,
+    "sh", "-c",
 
 
     "swayidle -w \
-  timeout 120 'wlr-randr --output DP-2 --off' resume 'wlr-randr --output DP-2 --on' \
-  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' resume 'wlr-randr --output DP-2 --on' \
+  timeout 120 'wlr-randr --output DP-2 --off' \
+    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
+  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' \
+    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
   timeout 300 'systemctl suspend' \
   before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
     NULL
@@ -69,23 +73,25 @@ static const Layout layouts[] = {
 
 /* monitors */
 /* (x=-1, y=-1) is reserved as an "autoconfigure" monitor position indicator
- * WARNING: negative values other than (-1, -1) cause problems with Xwayland clients
- * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899
-*/
-/* NOTE: ALWAYS add a fallback rule, even if you are completely sure it won't be used */
+ * WARNING: negative values other than (-1, -1) cause problems with Xwayland clients due to
+ * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899 */
+/* refresh: desired refresh rate in Hz, 0 = highest available
+ * hdr: enable BT.2020/PQ HDR signalling at startup when the output and the
+ * renderer support it (requires WLR_RENDERER=vulkan) */
 static const MonitorRule monrules[] = {
+   /* name        mfact  nmaster scale layout      rotate/reflect              x      y   refresh hdr */
+
+    /* Middle 4K monitor (ASUS XG32UCWMG 240Hz), normal landscape, HDR */
+    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0, 240, 1 },
 
     /* Left 4K monitor (Samsung U32R59x), normal landscape */
-    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0 },
-
-    /* Middle 4K monitor (ASUS XG32UCWMG), normal landscape */
-    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 3840, 0 },
+    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -3840, 0, 0, 0 },
 
     /* Right portrait monitor (DELL P2419H), upside-down portrait */
-    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 7680, 0 },
+    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 3840, 0, 0, 0 },
 
     /* Fallback rule for any other monitor */
-    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1 },
+    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0 },
 };
 
 
@@ -220,8 +226,9 @@ static const Key keys[] = {
 	TAGKEYS(          XKB_KEY_7, XKB_KEY_ampersand,                  6),
 	TAGKEYS(          XKB_KEY_8, XKB_KEY_asterisk,                   7),
 	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                  8),
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_H,          togglehdr,      {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
-	
+
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
 	/* Ctrl-Alt-Fx is used to switch to another VT, if you don't know what a VT is
