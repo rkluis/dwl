@@ -1,6 +1,7 @@
 /*
  * See LICENSE file for copyright and license details.
  */
+#include <drm_fourcc.h>
 #include <getopt.h>
 #include <libinput.h>
 #include <linux/input-event-codes.h>
@@ -18,6 +19,8 @@
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_alpha_modifier_v1.h>
+#include <wlr/types/wlr_color_management_v1.h>
+#include <wlr/types/wlr_color_representation_v1.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_cursor_shape_v1.h>
@@ -252,6 +255,7 @@ typedef struct {
 	enum wl_output_transform rr;
 	int x, y;
 	int refresh; /* desired refresh rate in Hz, 0 = highest available */
+	int hdr;
 } MonitorRule;
 
 typedef struct {
@@ -350,6 +354,7 @@ static void gpureset(struct wl_listener *listener, void *data);
 static void handlecursoractivity(void);
 static int hidecursor(void *data);
 static void handlesig(int signo);
+static int hdrsupported(struct wlr_output *wlr_output, const char **reason);
 static void incnmaster(const Arg *arg);
 static void inputdevice(struct wl_listener *listener, void *data);
 static int keybinding(uint32_t mods, xkb_keysym_t sym);
@@ -384,6 +389,7 @@ static void setcursor(struct wl_listener *listener, void *data);
 static void setcursorshape(struct wl_listener *listener, void *data);
 static void setfloating(Client *c, int floating);
 static void setfullscreen(Client *c, int fullscreen);
+static void sethdr(struct wlr_output *wlr_output, struct wlr_output_state *state, int enable);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setmon(Client *c, Monitor *m, uint32_t newtags);
@@ -399,6 +405,7 @@ static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscreen(const Arg *arg);
+static void togglehdr(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unlocksession(struct wl_listener *listener, void *data);
@@ -1293,6 +1300,8 @@ createmon(struct wl_listener *listener, void *data)
 	struct wlr_output_mode *best_mode = NULL;
 	struct wlr_output_mode *mode;
 	Monitor *m;
+	int hdr = 0;
+	int target_refresh = 0; /* mHz; MonitorRule stores Hz */
 
 	if (!wlr_output_init_render(wlr_output, alloc, drw))
 		return;
@@ -1323,6 +1332,8 @@ createmon(struct wl_listener *listener, void *data)
 			strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, LENGTH(m->ltsymbol));
 			wlr_output_state_set_scale(&state, r->scale);
 			wlr_output_state_set_transform(&state, r->rr);
+			target_refresh = r->refresh * 1000;
+			hdr = r->hdr;
 			break;
 		}
 	}
@@ -1331,7 +1342,6 @@ createmon(struct wl_listener *listener, void *data)
 	 * monitor supports only a specific set of modes. If a refresh rate is
 	 * configured in monrules, pick the mode closest to it; otherwise pick
 	 * the highest refresh rate at the best resolution. */
-	int target_refresh = r->refresh * 1000; /* MonitorRule stores Hz, modes use mHz */
 	wl_list_for_each(mode, &wlr_output->modes, link) {
 		int res = mode->width * mode->height;
 		int best_res = best_mode ? best_mode->width * best_mode->height : 0;
@@ -1354,6 +1364,8 @@ createmon(struct wl_listener *listener, void *data)
 	LISTEN(&wlr_output->events.request_state, &m->request_state, requestmonstate);
 
 	wlr_output_state_set_enabled(&state, 1);
+	if (hdr)
+		sethdr(wlr_output, &state, 1);
 	wlr_output_commit_state(wlr_output, &state);
 	wlr_output_state_finish(&state);
 
@@ -2164,6 +2176,19 @@ hidecursor(void *data)
 	return 1;
 }
 
+int
+hdrsupported(struct wlr_output *wlr_output, const char **reason)
+{
+	*reason = NULL;
+	if (!(wlr_output->supported_primaries & WLR_COLOR_NAMED_PRIMARIES_BT2020))
+		*reason = "BT.2020 primaries not supported by output";
+	else if (!(wlr_output->supported_transfer_functions & WLR_COLOR_TRANSFER_FUNCTION_ST2084_PQ))
+		*reason = "PQ transfer function not supported by output";
+	else if (!drw->features.output_color_transform)
+		*reason = "renderer does not support output color transforms (try WLR_RENDERER=vulkan)";
+	return !*reason;
+}
+
 void
 incnmaster(const Arg *arg)
 {
@@ -2941,6 +2966,41 @@ setfullscreen(Client *c, int fullscreen)
 }
 
 void
+sethdr(struct wlr_output *wlr_output, struct wlr_output_state *state, int enable)
+{
+	static const struct wlr_output_image_description hdr_desc = {
+		.primaries = WLR_COLOR_NAMED_PRIMARIES_BT2020,
+		.transfer_function = WLR_COLOR_TRANSFER_FUNCTION_ST2084_PQ,
+	};
+	const char *reason;
+
+	if (enable && !hdrsupported(wlr_output, &reason)) {
+		wlr_log(WLR_ERROR, "cannot enable HDR on %s: %s", wlr_output->name, reason);
+		enable = 0;
+	}
+
+	if (!enable) {
+		if (wlr_output->image_description)
+			wlr_output_state_set_image_description(state, NULL);
+		if (wlr_output->render_format == DRM_FORMAT_XRGB2101010
+				|| wlr_output->render_format == DRM_FORMAT_XBGR2101010)
+			wlr_output_state_set_render_format(state, DRM_FORMAT_XRGB8888);
+		return;
+	}
+
+	wlr_log(WLR_INFO, "enabling HDR on %s", wlr_output->name);
+	wlr_output_state_set_image_description(state, &hdr_desc);
+	/* use a 10-bit framebuffer to avoid banding with the PQ transfer
+	 * function; fall back to 8-bit if the backend rejects it */
+	wlr_output_state_set_render_format(state, DRM_FORMAT_XRGB2101010);
+	if (!wlr_output_test_state(wlr_output, state)) {
+		wlr_output_state_set_render_format(state, DRM_FORMAT_XBGR2101010);
+		if (!wlr_output_test_state(wlr_output, state))
+			wlr_output_state_set_render_format(state, DRM_FORMAT_XRGB8888);
+	}
+}
+
+void
 setlayout(const Arg *arg)
 {
 	if (!selmon)
@@ -3225,6 +3285,36 @@ setup(void)
 	wl_signal_add(&output_mgr->events.apply, &output_mgr_apply);
 	wl_signal_add(&output_mgr->events.test, &output_mgr_test);
 
+	/* Advertise wp-color-management-v1 if the renderer can color-convert
+	 * client buffers; only the Vulkan renderer can (WLR_RENDERER=vulkan).
+	 * The scene graph applies surface color state during rendering. */
+	if (drw->features.input_color_transform) {
+		static const enum wp_color_manager_v1_render_intent render_intents[] = {
+			WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL,
+		};
+		size_t tfs_len, primaries_len;
+		enum wp_color_manager_v1_transfer_function *tfs =
+				wlr_color_manager_v1_transfer_function_list_from_renderer(drw, &tfs_len);
+		enum wp_color_manager_v1_primaries *primaries =
+				wlr_color_manager_v1_primaries_list_from_renderer(drw, &primaries_len);
+		wlr_scene_set_color_manager_v1(scene, wlr_color_manager_v1_create(dpy, 2,
+				&(struct wlr_color_manager_v1_options){
+			.features = {
+				.parametric = 1,
+				.set_mastering_display_primaries = 1,
+			},
+			.render_intents = render_intents,
+			.render_intents_len = LENGTH(render_intents),
+			.transfer_functions = tfs,
+			.transfer_functions_len = tfs_len,
+			.primaries = primaries,
+			.primaries_len = primaries_len,
+		}));
+		free(tfs);
+		free(primaries);
+	}
+	wlr_color_representation_manager_v1_create_with_renderer(dpy, 1, drw);
+
 	drwl_init();
 
 	status_event_source = wl_event_loop_add_fd(wl_display_get_event_loop(dpy),
@@ -3384,6 +3474,21 @@ togglefullscreen(const Arg *arg)
 	Client *sel = focustop(selmon);
 	if (sel)
 		setfullscreen(sel, !sel->isfullscreen);
+}
+
+void
+togglehdr(const Arg *arg)
+{
+	struct wlr_output_state state;
+
+	if (!selmon || !selmon->wlr_output->enabled)
+		return;
+
+	wlr_output_state_init(&state);
+	sethdr(selmon->wlr_output, &state, !selmon->wlr_output->image_description);
+	if (!wlr_output_commit_state(selmon->wlr_output, &state))
+		wlr_log(WLR_ERROR, "failed to commit HDR state on %s", selmon->wlr_output->name);
+	wlr_output_state_finish(&state);
 }
 
 void
