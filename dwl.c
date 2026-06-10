@@ -251,6 +251,7 @@ typedef struct {
 	const Layout *lt;
 	enum wl_output_transform rr;
 	int x, y;
+	int refresh; /* desired refresh rate in Hz, 0 = highest available */
 } MonitorRule;
 
 typedef struct {
@@ -1327,16 +1328,18 @@ createmon(struct wl_listener *listener, void *data)
 	}
 
 	/* The mode is a tuple of (width, height, refresh rate), and each
-	 * monitor supports only a specific set of modes. We just pick the
-	 * monitor's preferred mode; a more sophisticated compositor would let
-	 * the user configure it. */
-	//wlr_output_state_set_mode(&state, wlr_output_preferred_mode(wlr_output));
-
+	 * monitor supports only a specific set of modes. If a refresh rate is
+	 * configured in monrules, pick the mode closest to it; otherwise pick
+	 * the highest refresh rate at the best resolution. */
+	int target_refresh = r->refresh * 1000; /* MonitorRule stores Hz, modes use mHz */
 	wl_list_for_each(mode, &wlr_output->modes, link) {
-		if (!best_mode ||
-			mode->width * mode->height > best_mode->width * best_mode->height ||
-			(mode->width * mode->height == best_mode->width * best_mode->height &&
-			 mode->refresh > best_mode->refresh)) {
+		int res = mode->width * mode->height;
+		int best_res = best_mode ? best_mode->width * best_mode->height : 0;
+		if (!best_mode || res > best_res
+			|| (res == best_res && target_refresh
+				&& abs(mode->refresh - target_refresh) < abs(best_mode->refresh - target_refresh))
+			|| (res == best_res && !target_refresh
+				&& mode->refresh > best_mode->refresh)) {
 			best_mode = mode;
 		}
 	}
@@ -2839,15 +2842,10 @@ run(char *startup_cmd)
 	printstatus();
 	drawbars();
 
-	/* At this point the outputs are initialized, choose initial selmon based on
-	 * cursor position, and set default cursor image */
+	/* At this point the outputs are initialized, warp cursor to center of
+	 * middle monitor (DP-1 240Hz at 0,0) and choose initial selmon */
+	wlr_cursor_warp_closest(cursor, NULL, 1920, 1080);
 	selmon = xytomon(cursor->x, cursor->y);
-
-	/* TODO hack to get cursor to display in its initial location (100, 100)
-	 * instead of (0, 0) and then jumping. Still may not be fully
-	 * initialized, as the image/coordinates are not transformed for the
-	 * monitor when displayed here */
-	wlr_cursor_warp_closest(cursor, NULL, cursor->x, cursor->y);
 	wlr_cursor_set_xcursor(cursor, cursor_mgr, "default");
 	handlecursoractivity();
 
