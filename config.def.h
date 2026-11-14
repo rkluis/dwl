@@ -77,21 +77,22 @@ static const Layout layouts[] = {
  * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899 */
 /* refresh: desired refresh rate in Hz, 0 = highest available
  * hdr: enable BT.2020/PQ HDR signalling at startup when the output and the
- * renderer support it (requires WLR_RENDERER=vulkan) */
+ * renderer support it (requires WLR_RENDERER=vulkan)
+ * vrr: enable adaptive sync (FreeSync/G-Sync compatible) when supported */
 static const MonitorRule monrules[] = {
-   /* name        mfact  nmaster scale layout      rotate/reflect              x      y   refresh hdr */
+   /* name        mfact  nmaster scale layout      rotate/reflect              x      y   refresh hdr vrr */
 
     /* Middle 4K monitor (ASUS XG32UCWMG 240Hz), normal landscape, HDR */
-    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0, 240, 1 },
+    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0, 240, 1, 1 },
 
     /* Left 4K monitor (Samsung U32R59x), normal landscape */
-    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -3840, 0, 0, 0 },
+    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -3840, 0, 0, 0, 0 },
 
     /* Right portrait monitor (DELL P2419H), upside-down portrait */
-    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 3840, 0, 0, 0 },
+    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 3840, 0, 0, 0, 0 },
 
     /* Fallback rule for any other monitor */
-    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0 },
+    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0, 0 },
 };
 
 

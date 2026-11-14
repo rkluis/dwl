@@ -256,6 +256,7 @@ typedef struct {
 	int x, y;
 	int refresh; /* desired refresh rate in Hz, 0 = highest available */
 	int hdr;
+	int vrr; /* adaptive sync: 1 = on when the output supports it */
 } MonitorRule;
 
 typedef struct {
@@ -1303,6 +1304,7 @@ createmon(struct wl_listener *listener, void *data)
 	struct wlr_output_mode *mode;
 	Monitor *m;
 	int hdr = 0;
+	int vrr = 0;
 	int target_refresh = 0; /* mHz; MonitorRule stores Hz */
 
 	if (!wlr_output_init_render(wlr_output, alloc, drw))
@@ -1336,6 +1338,7 @@ createmon(struct wl_listener *listener, void *data)
 			wlr_output_state_set_transform(&state, r->rr);
 			target_refresh = r->refresh * 1000;
 			hdr = r->hdr;
+			vrr = r->vrr;
 			break;
 		}
 	}
@@ -1368,6 +1371,16 @@ createmon(struct wl_listener *listener, void *data)
 	wlr_output_state_set_enabled(&state, 1);
 	if (hdr)
 		sethdr(wlr_output, &state, 1);
+	/* Adaptive sync makes the refresh follow our commits, so the panel
+	 * waits for each new frame instead of repeating the last one. Drop it
+	 * if the output or driver refuses, rather than failing the mode set. */
+	if (vrr) {
+		wlr_output_state_set_adaptive_sync_enabled(&state, 1);
+		if (!wlr_output_test_state(wlr_output, &state)) {
+			fprintf(stderr, "dwl: adaptive sync not supported on %s\n", wlr_output->name);
+			wlr_output_state_set_adaptive_sync_enabled(&state, 0);
+		}
+	}
 	wlr_output_commit_state(wlr_output, &state);
 	wlr_output_state_finish(&state);
 
