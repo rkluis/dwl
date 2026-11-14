@@ -36,19 +36,18 @@ static int log_level = WLR_ERROR;
 /* Autostart */
 static const char *const autostart[] = {
     "sh", "-c",
-    "swaylock --image /home/rolly/wallpapers/hands.jpg &", NULL,
-    "swaybg", "-i", "/home/rolly/wallpapers/hands.jpg", "-m", "fill", NULL,
+    "swaylock -c 000000 &", NULL,
     "sh", "-c",
     "sleep 1 && ~/scripts/dwl-monitors.sh", NULL,
     "sh", "-c",
 
 
     "swayidle -w \
-  timeout 300 'swaylock -f --image /home/rolly/wallpapers/hands.jpg' \
+  timeout 300 'swaylock -f -c 000000' \
   timeout 310 '~/scripts/screens.sh off' \
     resume '~/scripts/screens.sh on' \
   timeout 420 '~/.local/bin/claude-remote-active || systemctl suspend' \
-  before-sleep 'swaylock -f --image /home/rolly/wallpapers/hands.jpg' \
+  before-sleep 'swaylock -f -c 000000' \
   after-resume '~/scripts/screens.sh resume'", NULL,
     NULL
 };
@@ -198,7 +197,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
-	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
+	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock -c 000000") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
     	{ 0, XKB_KEY_XF86AudioMute, spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
