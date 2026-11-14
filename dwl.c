@@ -2818,6 +2818,30 @@ powermgrsetmode(struct wl_listener *listener, void *data)
 	}
 	wlr_output_commit_state(m->wlr_output, &state);
 
+	/* An output created asleep was never advertised (no wl_output global, not
+	 * in the output-management config), so clients cannot wake it: wake it
+	 * along with any output that is woken. */
+	if (event->mode) {
+		Monitor *o;
+		wl_list_for_each(o, &mons, link) {
+			struct wlr_output_state ws;
+			if (o == m || !o->asleep || !o->wake_mode)
+				continue;
+			wlr_output_state_init(&ws);
+			wlr_output_state_set_enabled(&ws, 1);
+			wlr_output_state_set_mode(&ws, o->wake_mode);
+			wlr_output_state_set_scale(&ws, o->wake_scale);
+			wlr_output_state_set_transform(&ws, o->wake_rr);
+			if (wlr_output_commit_state(o->wlr_output, &ws)) {
+				o->wake_mode = NULL;
+				o->asleep = 0;
+				o->gamma_lut_changed = 1;
+				setasleepname(o->wlr_output->name, 0);
+			}
+			wlr_output_state_finish(&ws);
+		}
+	}
+
 	m->asleep = !event->mode;
 	updatemons(NULL, NULL);
 }
