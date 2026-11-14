@@ -240,6 +240,10 @@ struct Monitor {
 	int nmaster;
 	char ltsymbol[16];
 	int asleep;
+	/* Created while asleep (see asleepnames): applied when woken */
+	struct wlr_output_mode *wake_mode;
+	float wake_scale;
+	enum wl_output_transform wake_rr;
 	Client *prevc;
 	Drwl *drw;
 	Buffer *pool[2];
@@ -256,6 +260,7 @@ typedef struct {
 	int x, y;
 	int refresh; /* desired refresh rate in Hz, 0 = highest available */
 	int hdr;
+	int vrr; /* adaptive sync: 1 = on when the output supports it */
 } MonitorRule;
 
 typedef struct {
@@ -378,6 +383,9 @@ static void outputmgrtest(struct wl_listener *listener, void *data);
 static void pointerfocus(Client *c, struct wlr_surface *surface,
 		double sx, double sy, uint32_t time);
 static void powermgrsetmode(struct wl_listener *listener, void *data);
+static int isasleepname(const char *name);
+static int anyasleep(void);
+static void setasleepname(const char *name, int asleep);
 static void printstatus(void);
 static void quit(const Arg *arg);
 static void rendermon(struct wl_listener *listener, void *data);
@@ -454,6 +462,9 @@ static struct wlr_virtual_keyboard_manager_v1 *virtual_keyboard_mgr;
 static struct wlr_virtual_pointer_manager_v1 *virtual_pointer_mgr;
 static struct wlr_cursor_shape_manager_v1 *cursor_shape_mgr;
 static struct wlr_output_power_manager_v1 *power_mgr;
+/* Outputs put to sleep by output power management, by name, so one that drops
+ * its link while asleep and reconnects (the Samsung does) stays asleep. */
+static char asleepnames[8][32];
 
 static struct wlr_pointer_constraints_v1 *pointer_constraints;
 static struct wlr_relative_pointer_manager_v1 *relative_pointer_mgr;
@@ -1303,6 +1314,7 @@ createmon(struct wl_listener *listener, void *data)
 	struct wlr_output_mode *mode;
 	Monitor *m;
 	int hdr = 0;
+	int vrr = 0;
 	int target_refresh = 0; /* mHz; MonitorRule stores Hz */
 
 	if (!wlr_output_init_render(wlr_output, alloc, drw))
@@ -1336,6 +1348,7 @@ createmon(struct wl_listener *listener, void *data)
 			wlr_output_state_set_transform(&state, r->rr);
 			target_refresh = r->refresh * 1000;
 			hdr = r->hdr;
+			vrr = r->vrr;
 			break;
 		}
 	}
@@ -1365,9 +1378,37 @@ createmon(struct wl_listener *listener, void *data)
 	LISTEN(&wlr_output->events.destroy, &m->destroy, cleanupmon);
 	LISTEN(&wlr_output->events.request_state, &m->request_state, requestmonstate);
 
-	wlr_output_state_set_enabled(&state, 1);
+	if (isasleepname(wlr_output->name) && !anyasleep()) {
+		/* Reconnected while every other output is awake (woken by its own
+		 * button): the screens are on, so it should be too. */
+		setasleepname(wlr_output->name, 0);
+	}
+	if (isasleepname(wlr_output->name)) {
+		/* Reconnected while asleep: stay off until woken. wlroots refuses a
+		 * mode on a disabled output, so keep what we chose for the wake. */
+		m->asleep = 1;
+		m->wake_mode = best_mode;
+		m->wake_scale = (state.committed & WLR_OUTPUT_STATE_SCALE) ? state.scale : 1.0f;
+		m->wake_rr = state.transform;
+		wlr_output_state_finish(&state);
+		wlr_output_state_init(&state);
+		wlr_output_state_set_enabled(&state, 0);
+		hdr = vrr = 0;
+	} else {
+		wlr_output_state_set_enabled(&state, 1);
+	}
 	if (hdr)
 		sethdr(wlr_output, &state, 1);
+	/* Adaptive sync makes the refresh follow our commits, so the panel
+	 * waits for each new frame instead of repeating the last one. Drop it
+	 * if the output or driver refuses, rather than failing the mode set. */
+	if (vrr) {
+		wlr_output_state_set_adaptive_sync_enabled(&state, 1);
+		if (!wlr_output_test_state(wlr_output, &state)) {
+			fprintf(stderr, "dwl: adaptive sync not supported on %s\n", wlr_output->name);
+			wlr_output_state_set_adaptive_sync_enabled(&state, 0);
+		}
+	}
 	wlr_output_commit_state(wlr_output, &state);
 	wlr_output_state_finish(&state);
 
@@ -2645,6 +2686,7 @@ outputmgrapplyortest(struct wlr_output_configuration_v1 *config, int test)
 		/* Ensure displays previously disabled by wlr-output-power-management-v1
 		 * are properly handled*/
 		m->asleep = 0;
+		setasleepname(wlr_output->name, 0);
 
 		wlr_output_state_init(&state);
 		wlr_output_state_set_enabled(&state, config_head->state.enabled);
@@ -2732,6 +2774,45 @@ printstatus(void)
 		dwl_ipc_output_printstatus(m);
 }
 
+int
+anyasleep(void)
+{
+	Monitor *m;
+	wl_list_for_each(m, &mons, link)
+		if (m->asleep)
+			return 1;
+	return 0;
+}
+
+int
+isasleepname(const char *name)
+{
+	size_t i;
+	for (i = 0; i < LENGTH(asleepnames); i++)
+		if (asleepnames[i][0] && !strcmp(asleepnames[i], name))
+			return 1;
+	return 0;
+}
+
+void
+setasleepname(const char *name, int asleep)
+{
+	size_t i;
+	for (i = 0; i < LENGTH(asleepnames); i++) {
+		if (asleepnames[i][0] && !strcmp(asleepnames[i], name)) {
+			if (!asleep)
+				asleepnames[i][0] = '\0';
+			return;
+		}
+	}
+	for (i = 0; asleep && i < LENGTH(asleepnames); i++) {
+		if (!asleepnames[i][0]) {
+			snprintf(asleepnames[i], sizeof(asleepnames[i]), "%s", name);
+			return;
+		}
+	}
+}
+
 void
 powermgrsetmode(struct wl_listener *listener, void *data)
 {
@@ -2743,8 +2824,39 @@ powermgrsetmode(struct wl_listener *listener, void *data)
 		return;
 
 	m->gamma_lut_changed = 1; /* Reapply gamma LUT when re-enabling the output */
+	setasleepname(m->wlr_output->name, !event->mode);
 	wlr_output_state_set_enabled(&state, event->mode);
+	if (event->mode && m->wake_mode) {
+		wlr_output_state_set_mode(&state, m->wake_mode);
+		wlr_output_state_set_scale(&state, m->wake_scale);
+		wlr_output_state_set_transform(&state, m->wake_rr);
+		m->wake_mode = NULL;
+	}
 	wlr_output_commit_state(m->wlr_output, &state);
+
+	/* An output created asleep was never advertised (no wl_output global, not
+	 * in the output-management config), so clients cannot wake it: wake it
+	 * along with any output that is woken. */
+	if (event->mode) {
+		Monitor *o;
+		wl_list_for_each(o, &mons, link) {
+			struct wlr_output_state ws;
+			if (o == m || !o->asleep || !o->wake_mode)
+				continue;
+			wlr_output_state_init(&ws);
+			wlr_output_state_set_enabled(&ws, 1);
+			wlr_output_state_set_mode(&ws, o->wake_mode);
+			wlr_output_state_set_scale(&ws, o->wake_scale);
+			wlr_output_state_set_transform(&ws, o->wake_rr);
+			if (wlr_output_commit_state(o->wlr_output, &ws)) {
+				o->wake_mode = NULL;
+				o->asleep = 0;
+				o->gamma_lut_changed = 1;
+				setasleepname(o->wlr_output->name, 0);
+			}
+			wlr_output_state_finish(&ws);
+		}
+	}
 
 	m->asleep = !event->mode;
 	updatemons(NULL, NULL);

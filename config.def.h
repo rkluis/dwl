@@ -36,20 +36,19 @@ static int log_level = WLR_ERROR;
 /* Autostart */
 static const char *const autostart[] = {
     "sh", "-c",
-    "swaylock --image /home/rolly/wallpapers/hands.jpg &", NULL,
-    "swaybg", "-i", "/home/rolly/wallpapers/hands.jpg", "-m", "fill", NULL,
+    "swaylock -c 000000 &", NULL,
     "sh", "-c",
-    "sleep 1 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0 --output DP-2 --pos -3840,0 --output HDMI-A-1 --pos 3840,0", NULL,
+    "sleep 1 && ~/scripts/dwl-monitors.sh", NULL,
     "sh", "-c",
 
 
     "swayidle -w \
-  timeout 120 'wlr-randr --output DP-2 --off' \
-    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
-  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' \
-    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
-  timeout 300 'systemctl suspend' \
-  before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
+  timeout 300 'swaylock -f -c 000000' \
+  timeout 310 '~/scripts/screens.sh off' \
+    resume '~/scripts/screens.sh on' \
+  timeout 420 '~/.local/bin/claude-remote-active || systemctl suspend' \
+  before-sleep 'swaylock -f -c 000000' \
+  after-resume '~/scripts/screens.sh resume'", NULL,
     NULL
 };
 
@@ -77,21 +76,22 @@ static const Layout layouts[] = {
  * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899 */
 /* refresh: desired refresh rate in Hz, 0 = highest available
  * hdr: enable BT.2020/PQ HDR signalling at startup when the output and the
- * renderer support it (requires WLR_RENDERER=vulkan) */
+ * renderer support it (requires WLR_RENDERER=vulkan)
+ * vrr: enable adaptive sync (FreeSync/G-Sync compatible) when supported */
 static const MonitorRule monrules[] = {
-   /* name        mfact  nmaster scale layout      rotate/reflect              x      y   refresh hdr */
+   /* name        mfact  nmaster scale layout      rotate/reflect              x      y   refresh hdr vrr */
 
     /* Middle 4K monitor (ASUS XG32UCWMG 240Hz), normal landscape, HDR */
-    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0, 240, 1 },
+    { "DP-1",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0, 240, 1, 1 },
 
     /* Left 4K monitor (Samsung U32R59x), normal landscape */
-    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -3840, 0, 0, 0 },
+    { "DP-2",     0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -3840, 0, 0, 0, 0 },
 
     /* Right portrait monitor (DELL P2419H), upside-down portrait */
-    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 3840, 0, 0, 0 },
+    { "HDMI-A-1", 0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_270, 3840, 0, 0, 0, 0 },
 
     /* Fallback rule for any other monitor */
-    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0 },
+    { NULL,       0.55f, 1, 1, &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0, 0 },
 };
 
 
@@ -197,7 +197,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,		 spawn,		 SHCMD("~/scripts/screenshot.sh full") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,		 spawn,		 SHCMD("~/scripts/screenshot.sh region") },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,		 spawn,		 SHCMD("~/scripts/screenshot.sh regiontext") }, 
-	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock --image /home/rolly/wallpapers/hands.jpg") },
+	{ MODKEY|WLR_MODIFIER_SHIFT,		     XKB_KEY_L,		 spawn,		 SHCMD("swaylock -c 000000") },
 	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, SHCMD("amixer set Master 5%+") },
     	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, SHCMD("amixer set Master 5%-") },
     	{ 0, XKB_KEY_XF86AudioMute, spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
