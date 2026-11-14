@@ -384,6 +384,7 @@ static void pointerfocus(Client *c, struct wlr_surface *surface,
 		double sx, double sy, uint32_t time);
 static void powermgrsetmode(struct wl_listener *listener, void *data);
 static int isasleepname(const char *name);
+static int anyasleep(void);
 static void setasleepname(const char *name, int asleep);
 static void printstatus(void);
 static void quit(const Arg *arg);
@@ -1377,6 +1378,11 @@ createmon(struct wl_listener *listener, void *data)
 	LISTEN(&wlr_output->events.destroy, &m->destroy, cleanupmon);
 	LISTEN(&wlr_output->events.request_state, &m->request_state, requestmonstate);
 
+	if (isasleepname(wlr_output->name) && !anyasleep()) {
+		/* Reconnected while every other output is awake (woken by its own
+		 * button): the screens are on, so it should be too. */
+		setasleepname(wlr_output->name, 0);
+	}
 	if (isasleepname(wlr_output->name)) {
 		/* Reconnected while asleep: stay off until woken. wlroots refuses a
 		 * mode on a disabled output, so keep what we chose for the wake. */
@@ -2766,6 +2772,16 @@ printstatus(void)
 
 	wl_list_for_each(m, &mons, link)
 		dwl_ipc_output_printstatus(m);
+}
+
+int
+anyasleep(void)
+{
+	Monitor *m;
+	wl_list_for_each(m, &mons, link)
+		if (m->asleep)
+			return 1;
+	return 0;
 }
 
 int
