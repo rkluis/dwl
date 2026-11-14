@@ -39,15 +39,15 @@ static const char *const autostart[] = {
     "swaylock --image /home/rolly/wallpapers/hands.jpg &", NULL,
     "swaybg", "-i", "/home/rolly/wallpapers/hands.jpg", "-m", "fill", NULL,
     "sh", "-c",
-    "sleep 1 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0 --output DP-2 --pos -3840,0 --output HDMI-A-1 --pos 3840,0", NULL,
+    "sleep 1 && ~/scripts/dwl-monitors.sh", NULL,
     "sh", "-c",
 
 
     "swayidle -w \
   timeout 120 'wlr-randr --output DP-2 --off' \
-    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
+    resume '~/scripts/dwl-monitors.sh' \
   timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' \
-    resume 'wlr-randr --output DP-2 --on --pos -3840,0 && sleep 0.5 && wlr-randr --output DP-1 --mode 3840x2160@240.016006Hz --pos 0,0' \
+    resume '~/scripts/dwl-monitors.sh' \
   timeout 300 'systemctl suspend' \
   before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
     NULL
