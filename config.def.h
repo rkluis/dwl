@@ -48,7 +48,7 @@ static const char *const autostart[] = {
     resume '~/scripts/dwl-monitors.sh' \
   timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' \
     resume '~/scripts/dwl-monitors.sh' \
-  timeout 300 'systemctl suspend' \
+  timeout 300 '~/.local/bin/claude-remote-active || systemctl suspend' \
   before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
     NULL
 };
