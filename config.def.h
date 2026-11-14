@@ -44,12 +44,12 @@ static const char *const autostart[] = {
 
 
     "swayidle -w \
-  timeout 120 'wlr-randr --output DP-2 --off' \
-    resume '~/scripts/dwl-monitors.sh' \
-  timeout 130 'swaylock --image /home/rolly/wallpapers/hands.jpg &' \
-    resume '~/scripts/dwl-monitors.sh' \
-  timeout 300 '~/.local/bin/claude-remote-active || systemctl suspend' \
-  before-sleep 'swaylock --image /home/rolly/wallpapers/hands.jpg'", NULL,
+  timeout 300 'swaylock -f --image /home/rolly/wallpapers/hands.jpg' \
+  timeout 310 '~/scripts/screens.sh off' \
+    resume '~/scripts/screens.sh on' \
+  timeout 420 '~/.local/bin/claude-remote-active || systemctl suspend' \
+  before-sleep 'swaylock -f --image /home/rolly/wallpapers/hands.jpg' \
+  after-resume '~/scripts/screens.sh resume'", NULL,
     NULL
 };
 
